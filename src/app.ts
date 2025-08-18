@@ -6,6 +6,7 @@ import cors from "cors";
 
 import { limiter } from "./middlewears/rateLimit";
 import { check, customRequest } from "./middlewears/check";
+import healthRoute from "./routes/v1/healthRoute";
 
 export const app = express();
 
@@ -30,12 +31,7 @@ app
   .use(compression())
   .use(limiter);
 
-app.get("/health", check, (req: customRequest, res: Response) => {
-  // throw new Error("An Error Occur!"); // After throwing error the rest codes will not be executed
-  res
-    .status(200)
-    .json({ message: "Okay This is my reply!", userId: req.userId });
-});
+app.use("/api/v1", healthRoute);
 
 // if there is an error these codes will be executed
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
