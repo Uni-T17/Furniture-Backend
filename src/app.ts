@@ -1,10 +1,11 @@
-import express from "express";
+import express, { Response } from "express";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
 import cors from "cors";
 
 import { limiter } from "./middlewears/rateLimit";
+import { check, customRequest } from "./middlewears/check";
 
 export const app = express();
 
@@ -29,6 +30,8 @@ app
   .use(compression())
   .use(limiter);
 
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "Okay This is my reply!" });
+app.get("/health", check, (req: customRequest, res: Response) => {
+  res
+    .status(200)
+    .json({ message: "Okay This is my reply!", userId: req.userId });
 });
