@@ -31,16 +31,17 @@ app
   .use(limiter);
 
 app.get("/health", check, (req: customRequest, res: Response) => {
-  throw new Error("An Error Occur!");
+  // throw new Error("An Error Occur!"); // After throwing error the rest codes will not be executed
   res
     .status(200)
     .json({ message: "Okay This is my reply!", userId: req.userId });
 });
 
+// if there is an error these codes will be executed
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const errorStatus = error.status || 500;
   const errorMsg = error.message || "Server Error";
-  const errorCode = error.errorCode || "Error Code";
+  const errorCode = error.code || "Error Code";
   res.status(errorStatus).json({ message: errorMsg, error: errorCode });
   next();
 });
