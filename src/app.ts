@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express, { Request, NextFunction, Response } from "express";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
@@ -31,7 +31,16 @@ app
   .use(limiter);
 
 app.get("/health", check, (req: customRequest, res: Response) => {
+  throw new Error("An Error Occur!");
   res
     .status(200)
     .json({ message: "Okay This is my reply!", userId: req.userId });
+});
+
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  const errorStatus = error.status || 500;
+  const errorMsg = error.message || "Server Error";
+  const errorCode = error.errorCode || "Error Code";
+  res.status(errorStatus).json({ message: errorMsg, error: errorCode });
+  next();
 });
