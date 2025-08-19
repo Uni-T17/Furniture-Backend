@@ -4,7 +4,7 @@ interface customRequest extends Request {
   userId?: number;
 }
 
-export const healthController = (
+export const healthControllers = (
   req: customRequest,
   res: Response,
   next: NextFunction

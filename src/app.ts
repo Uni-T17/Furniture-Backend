@@ -6,7 +6,7 @@ import cors from "cors";
 
 import { limiter } from "./middlewears/rateLimit";
 import { check, customRequest } from "./middlewears/check";
-import healthRoute from "./routes/v1/healthRoute";
+import healthRoutes from "./routes/v1/healthRoutes";
 
 export const app = express();
 
@@ -31,7 +31,7 @@ app
   .use(compression())
   .use(limiter);
 
-app.use("/api/v1", healthRoute);
+app.use("/api/v1", healthRoutes);
 
 // if there is an error these codes will be executed
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
