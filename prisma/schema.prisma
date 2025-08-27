@@ -146,4 +146,5 @@ model Otp {
   error         Int      @default(0) @db.SmallInt
   createdAt     DateTime @default(now())
   expiresAt     DateTime
+  updatedAt     DateTime @updatedAt
 }
