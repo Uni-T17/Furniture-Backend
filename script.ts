@@ -1,31 +1,21 @@
 import { Prisma, PrismaClient } from './generated/prisma'
 import * as bcript from "bcrypt";
+import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
-const userData: Prisma.UserCreateInput[] = [
-  {
-    phone: "0999832340",
-    password: "",
-    randToken : "soejoijeoi201fowo"
-  },{
-    phone: "0999832341",
-    password: "",
-    randToken : "soejoijeoi201fowo"
-  },{
-    phone: "0999832342",
-    password: "",
-    randToken : "soejoijeoi201fowo"
-  },{
-    phone: "0999832343",
-    password: "",
-    randToken : "soejoijeoi201fowo"
-  },{
-    phone: "0999832344",
-    password: "",
-    randToken : "soejoijeoi201fowo"
-  }
-]
+
+ function createRandomUser() :Prisma.UserCreateInput {
+   return {
+     phone: faker.phone.number({ style: "international" }),
+     password: faker.internet.password(),
+     randToken: faker.internet.jwt()
+  };
+}
+
+ const userData = faker.helpers.multiple(createRandomUser, {
+  count: 5,
+});
 
 async function main() {
   console.log("Scripting is starting...");

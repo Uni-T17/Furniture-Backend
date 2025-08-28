@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Uni-T17/Furniture-Backend#readme",
   "description": "",
   "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@types/bcrypt": "^6.0.0",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
