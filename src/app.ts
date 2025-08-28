@@ -8,6 +8,7 @@ import { limiter } from "./middlewears/rateLimit";
 import { check, customRequest } from "./middlewears/check";
 import healthRoutes from "./routes/v1/healthRoutes";
 import homeRoute from "./routes/web/home";
+import * as errorController from "./controllers/web/errorController"
 
 export const app = express();
 
@@ -37,6 +38,8 @@ app.set("views" , "src/views")
 
 app.use("/api/v1", healthRoutes);
 app.use(homeRoute);
+
+app.use(errorController.notFound);
 
 // if there is an error these codes will be executed
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
