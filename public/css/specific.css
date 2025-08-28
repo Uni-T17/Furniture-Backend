@@ -1,14 +1,3 @@
 h1{
-    text-align: center;
-
-}
-ul{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-list-style: none;
-    color: brown
-}
-nav{
-    background-color: rgb(208, 203, 203);
+    color: rgb(250, 166, 166)
 }

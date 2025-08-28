@@ -1,3 +1,18 @@
 h1{
-    color: rgb(174, 31, 31)
+    text-align: center;
+}
+ul{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    list-style: none;
+    color: brown
+}
+nav{
+    background-color: rgb(208, 203, 203);
+}
+
+a{
+    text-decoration: none;
+    color: green
 }
