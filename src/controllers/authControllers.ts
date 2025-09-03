@@ -9,9 +9,12 @@ export const register = [
     .isLength({ min: 5, max: 12 })
     .withMessage("Phone Number Must Be 5-12 numbers"),
   async (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log(errors);
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      const error: any = new Error(errors[0]?.msg);
+      error.status = 400;
+      error.code = "Error_Invalid";
+      return next(error);
     }
     res.status(200).json({
       message: "register",
