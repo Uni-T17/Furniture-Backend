@@ -8,6 +8,7 @@ import { limiter } from "./middlewears/rateLimit";
 import { check, customRequest } from "./middlewears/check";
 import healthRoutes from "./routes/v1/healthRoutes";
 import homeRoute from "./routes/web/home";
+import authRoutes from "./routes/v1/authRoutes"
 import * as errorController from "./controllers/web/errorController"
 
 export const app = express();
@@ -39,6 +40,7 @@ app.set("view engine", "ejs")
 app.set("views" , "src/views")
 
 app.use("/api/v1", healthRoutes);
+app.use("/api/v1", authRoutes)
 app.use(homeRoute);
 
 app.use(errorController.notFound);
