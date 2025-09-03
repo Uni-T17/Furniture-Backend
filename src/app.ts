@@ -43,7 +43,7 @@ app.use("/api/v1", healthRoutes);
 app.use("/api/v1", authRoutes)
 app.use(homeRoute);
 
-app.use(errorController.notFound);
+// app.use(errorController.notFound);
 
 // if there is an error these codes will be executed
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
