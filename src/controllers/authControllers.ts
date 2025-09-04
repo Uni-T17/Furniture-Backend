@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
+import { getUserByPhone } from "../services/authServices";
+import { checkUserExist } from "../utils/auth";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -16,8 +18,14 @@ export const register = [
       error.code = "Error_Invalid";
       return next(error);
     }
+    let phone: string = req.body.phone;
+    if (phone.slice(0, 2) === "09") {
+      phone = phone.substring(2, phone.length);
+    }
+    const user = await getUserByPhone(phone);
+    checkUserExist(user);
     res.status(200).json({
-      message: "register",
+      message: `${phone}`,
     });
   },
 ];
