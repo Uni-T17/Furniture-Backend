@@ -45,7 +45,7 @@ export const confirmPassword = async (
   next: NextFunction
 ) => {
   res.status(200).json({
-    message: "register haha",
+    message: "register haha hoho",
   });
 };
 export const login = async (
