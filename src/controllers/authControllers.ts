@@ -60,16 +60,30 @@ export const register = [
         expiresAt: expiresAt,
       });
     } else {
+      let count;
+      const lastUpdated = new Date(otpRow.updatedAt).toLocaleDateString();
+      const today = new Date().toLocaleDateString();
+      if (today === lastUpdated) {
+        count = otpRow.count + 1;
+      } else {
+        count = 1;
+      }
+      if (count === 3) {
+        const error: any = new Error("Can't Request more than 3 time per day");
+        error.status = 401;
+        error.code = "Error_OtpLimited";
+        throw error;
+      }
       result = await updateOtp(otpRow.id, {
         otp: hashOtp,
         rememberToken: token,
-        count: 1,
+        count: count,
         expiresAt: expiresAt,
       });
     }
 
     res.status(200).json({
-      message: `Otp is sent to $09{phone}`,
+      message: `Otp is sent to 09${phone}`,
       phone: result.phone,
       otp: result.otp,
       rememberToken: result.rememberToken,
