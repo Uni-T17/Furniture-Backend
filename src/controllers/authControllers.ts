@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
-import { getUserByPhone } from "../services/authServices";
+import { createOtp, getUserByPhone } from "../services/authServices";
 import { checkUserExist } from "../utils/auth";
+import { generateOtp, generateToken } from "../utils/generate";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -24,8 +25,32 @@ export const register = [
     }
     const user = await getUserByPhone(phone);
     checkUserExist(user);
+
+    // OTP sending Logic
+    // Generate Otp and Call Otp Send API
+    // If Can't send throw error
+    // make Expired time
+    // Save Otp to Database
+
+    const otp = generateOtp();
+    const token = generateToken();
+
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+
+    const result = await createOtp({
+      phone,
+      otp: otp.toString(),
+      rememberToken: token,
+      count: 1,
+      expiresAt: expiresAt,
+    });
     res.status(200).json({
-      message: `${phone}`,
+      message: `Otp is sent to $09{phone}`,
+      phone: result.phone,
+      otp: result.otp,
+      rememberToken: result.rememberToken,
+      expiresAt: `Expired in ${expiresAt} min`,
     });
   },
 ];
