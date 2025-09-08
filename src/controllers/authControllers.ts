@@ -3,6 +3,7 @@ import { body, validationResult } from "express-validator";
 import { createOtp, getUserByPhone } from "../services/authServices";
 import { checkUserExist } from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
+import * as bcrypt from "bcrypt";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -28,11 +29,15 @@ export const register = [
 
     // OTP sending Logic
     // Generate Otp and Call Otp Send API
+    // Hash Otp
     // If Can't send throw error
     // make Expired time
     // Save Otp to Database
 
     const otp = generateOtp();
+    const salt = await bcrypt.genSalt(10);
+    const hashOtp = await bcrypt.hash(otp.toString(), salt);
+
     const token = generateToken();
 
     const expiresAt = new Date();
@@ -40,7 +45,7 @@ export const register = [
 
     const result = await createOtp({
       phone,
-      otp: otp.toString(),
+      otp: hashOtp,
       rememberToken: token,
       count: 1,
       expiresAt: expiresAt,
