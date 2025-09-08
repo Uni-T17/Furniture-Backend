@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
-import { createOtp, getUserByPhone } from "../services/authServices";
+import {
+  createOtp,
+  getOtpByPhone,
+  getUserByPhone,
+  updateOtp,
+} from "../services/authServices";
 import { checkUserExist } from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
@@ -33,8 +38,9 @@ export const register = [
     // If Can't send throw error
     // make Expired time
     // Save Otp to Database
+    //Check Otp Avaiablity
 
-    const otp = generateOtp();
+    const otp = await generateOtp();
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
 
@@ -42,20 +48,33 @@ export const register = [
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+    let result;
 
-    const result = await createOtp({
-      phone,
-      otp: hashOtp,
-      rememberToken: token,
-      count: 1,
-      expiresAt: expiresAt,
-    });
+    const otpRow = await getOtpByPhone(phone);
+    if (!otpRow) {
+      result = await createOtp({
+        phone,
+        otp: hashOtp,
+        rememberToken: token,
+        count: 1,
+        expiresAt: expiresAt,
+      });
+    } else {
+      result = await updateOtp(otpRow.id, {
+        otp: hashOtp,
+        rememberToken: token,
+        count: 1,
+        expiresAt: expiresAt,
+      });
+    }
+
     res.status(200).json({
       message: `Otp is sent to $09{phone}`,
       phone: result.phone,
       otp: result.otp,
       rememberToken: result.rememberToken,
       expiresAt: `Expired in ${expiresAt} min`,
+      createdAt: result.createdAt,
     });
   },
 ];
