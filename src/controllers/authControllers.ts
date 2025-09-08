@@ -68,11 +68,11 @@ export const register = [
       } else {
         count = 1;
       }
-      if (count === 3) {
+      if (count > 3) {
         const error: any = new Error("Can't Request more than 3 time per day");
-        error.status = 401;
+        error.status = 405;
         error.code = "Error_OtpLimited";
-        throw error;
+        return next(error);
       }
       result = await updateOtp(otpRow.id, {
         otp: hashOtp,
