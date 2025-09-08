@@ -6,7 +6,7 @@ import {
   getUserByPhone,
   updateOtp,
 } from "../services/authServices";
-import { checkUserExist } from "../utils/auth";
+import { checkIsSameDateAndError, checkUserExist } from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
 
@@ -63,7 +63,9 @@ export const register = [
       let count;
       const lastUpdated = new Date(otpRow.updatedAt).toLocaleDateString();
       const today = new Date().toLocaleDateString();
-      if (today === lastUpdated) {
+      const isSameDate = today === lastUpdated;
+      checkIsSameDateAndError(isSameDate, otpRow.error);
+      if (isSameDate) {
         count = otpRow.count + 1;
       } else {
         count = 1;

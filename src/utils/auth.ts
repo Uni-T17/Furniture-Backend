@@ -6,3 +6,15 @@ export const checkUserExist = (user: any) => {
     throw error;
   }
 };
+
+export const checkIsSameDateAndError = (
+  isSameDate: boolean,
+  errorCount: number
+) => {
+  if (isSameDate && errorCount === 5) {
+    const error: any = new Error("You can't access for today for 5 errors!");
+    error.status = 405;
+    error.code = "Error_SameDateErrorLimit";
+    throw error;
+  }
+};
