@@ -18,3 +18,12 @@ export const checkIsSameDateAndError = (
     throw error;
   }
 };
+
+export const checkOtpRow = (otpRow: any) => {
+  if (!otpRow) {
+    const error: any = new Error("Otp Not Found!");
+    error.status = 409;
+    error.code = "Error_OtpNotFound";
+    throw error;
+  }
+};

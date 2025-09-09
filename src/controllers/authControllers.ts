@@ -115,6 +115,14 @@ export const verifyOtp = [
       error.code = "Error_InvalidOTP";
       throw error;
     }
+
+    const { phone, otp, token } = req.body;
+
+    const user = await getUserByPhone(phone);
+    checkUserExist(user);
+
+    const otpRow = await getOtpByPhone(phone);
+
     res.status(200).json({
       message: "register",
     });
