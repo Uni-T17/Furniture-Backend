@@ -6,7 +6,11 @@ import {
   getUserByPhone,
   updateOtp,
 } from "../services/authServices";
-import { checkIsSameDateAndError, checkUserExist } from "../utils/auth";
+import {
+  checkIsSameDateAndError,
+  checkOtpRow,
+  checkUserExist,
+} from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
 
@@ -116,12 +120,30 @@ export const verifyOtp = [
       throw error;
     }
 
-    const { phone, otp, token } = req.body;
+    const { phone, otp, rememberToken } = req.body;
 
     const user = await getUserByPhone(phone);
     checkUserExist(user);
 
     const otpRow = await getOtpByPhone(phone);
+    checkOtpRow(otpRow);
+
+    const lastVerify = new Date(otpRow!.updatedAt).toLocaleDateString();
+    const today = new Date().toLocaleDateString();
+    const isSameDate = lastVerify === today;
+    checkIsSameDateAndError(isSameDate, otpRow!.error);
+    let result;
+
+    if (otpRow!.rememberToken !== rememberToken) {
+      const otpData = {
+        error: 5,
+      };
+      result = await updateOtp(otpRow!.id, otpData);
+      const error: any = new Error("Invalid Token");
+      error.status = 400;
+      error.code = "Error_InvalidToken";
+      throw error;
+    }
 
     res.status(200).json({
       message: "register",
