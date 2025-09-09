@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { body, validationResult } from "express-validator";
+import { body, ExpressValidator, validationResult } from "express-validator";
 import {
   createOtp,
   getOtpByPhone,
@@ -23,7 +23,7 @@ export const register = [
       const error: any = new Error(errors[0]?.msg);
       error.status = 400;
       error.code = "Error_Invalid";
-      return next(error);
+      throw next(error);
     }
     let phone: string = req.body.phone;
     if (phone.slice(0, 2) === "09") {
@@ -39,12 +39,12 @@ export const register = [
     // make Expired time
     // Save Otp to Database
     //Check Otp Avaiablity
-
-    const otp = await generateOtp();
+    const otp = 123456; /// Production Only
+    // const otp = await generateOtp();
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
 
-    const token = generateToken();
+    const token = await generateToken();
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
@@ -95,15 +95,32 @@ export const register = [
   },
 ];
 
-export const verifyOtp = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  res.status(200).json({
-    message: "register",
-  });
-};
+export const verifyOtp = [
+  body("phone", "Inavlis Phone Number.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 5, max: 12 }),
+  body("otp", "Invalid OTP")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 6, max: 6 }),
+  body("rememberToken").trim().notEmpty().escape(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      const error: any = new Error(errors[0]?.msg);
+      error.status = 409;
+      error.code = "Error_InvalidOTP";
+      throw error;
+    }
+    res.status(200).json({
+      message: "register",
+    });
+  },
+];
+
 export const confirmPassword = async (
   req: Request,
   res: Response,
