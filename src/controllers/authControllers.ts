@@ -13,6 +13,7 @@ import {
 } from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
+import moment from "moment";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -44,11 +45,11 @@ export const register = [
     // Save Otp to Database
     //Check Otp Avaiablity
     const otp = 123456; /// Production Only
-    // const otp = await generateOtp();
+    // const otp =  generateOtp();
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
 
-    const token = await generateToken();
+    const token = generateToken();
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
@@ -138,15 +139,57 @@ export const verifyOtp = [
       const otpData = {
         error: 5,
       };
-      result = await updateOtp(otpRow!.id, otpData);
+      await updateOtp(otpRow!.id, otpData);
       const error: any = new Error("Invalid Token");
       error.status = 400;
       error.code = "Error_InvalidToken";
       throw error;
     }
 
+    const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 2;
+    if (isExpired) {
+      const error: any = new Error("Otp Expired");
+      error.status = 403;
+      error.code = "Error_Expired";
+      throw error;
+    }
+    let otpData;
+
+    // Check match Otp
+    const isMatchOtp = await bcrypt.compare(otp, otpRow!.otp);
+    if (!isMatchOtp) {
+      if (!isSameDate) {
+        otpData = {
+          error: 1,
+        };
+      } else {
+        otpData = {
+          error: {
+            increment: 1,
+          },
+        };
+      }
+      await updateOtp(otpRow!.id, otpData);
+      const error: any = new Error("Otp is incorrect!");
+      error.status = 401;
+      error.code = "Error_OtpIncorrect";
+      throw error;
+    }
+
+    // generate verifyToken
+    const verifiedToken = generateToken();
+    otpData = {
+      verifiedToken: verifiedToken,
+      error: 0,
+      count: 1,
+    };
+
+    result = await updateOtp(otpRow!.id, otpData);
+
     res.status(200).json({
-      message: "register",
+      message: "Otp is successfully verified.",
+      phone: result.phone,
+      verifiedToken: result.verifiedToken,
     });
   },
 ];
