@@ -27,7 +27,7 @@ export const register = [
     if (errors.length > 0) {
       const error: any = new Error(errors[0]?.msg);
       error.status = 400;
-      error.code = "Error_Invalid";
+      error.code = "Error_Invalid_Hey";
       throw next(error);
     }
     let phone: string = req.body.phone;
@@ -133,7 +133,6 @@ export const verifyOtp = [
     const today = new Date().toLocaleDateString();
     const isSameDate = lastVerify === today;
     checkIsSameDateAndError(isSameDate, otpRow!.error);
-    let result;
 
     if (otpRow!.rememberToken !== rememberToken) {
       const otpData = {
@@ -184,7 +183,7 @@ export const verifyOtp = [
       count: 1,
     };
 
-    result = await updateOtp(otpRow!.id, otpData);
+    const result = await updateOtp(otpRow!.id, otpData);
 
     res.status(200).json({
       message: "Otp is successfully verified.",
@@ -194,15 +193,40 @@ export const verifyOtp = [
   },
 ];
 
-export const confirmPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  res.status(200).json({
-    message: "register haha hoho",
-  });
-};
+export const confirmPassword = [
+  body("phone", "Invalid Phone Number")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 5, max: 12 }),
+  body("password", "Invalid Password")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  body("verifiedToken", "Invalid Token").trim().notEmpty().escape(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { phone, password, verifiedToken } = req.body;
+    const result = {
+      phone: phone,
+      password: password,
+      verifiedToken: verifiedToken,
+    };
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    {
+      if (errors.length > 0) {
+        console.log(errors);
+        const error: any = new Error(errors[0]?.msg);
+        error.status = 400;
+        error.code = "Error_InvalidPassword";
+        throw error;
+      }
+    }
+    res.status(200).json({
+      message: "register haha hoho",
+      password: result.password,
+    });
+  },
+];
 export const login = async (
   req: Request,
   res: Response,
