@@ -14,6 +14,7 @@ import {
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
 import moment from "moment";
+import { token } from "morgan";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -206,11 +207,7 @@ export const confirmPassword = [
   body("verifiedToken", "Invalid Token").trim().notEmpty().escape(),
   async (req: Request, res: Response, next: NextFunction) => {
     const { phone, password, verifiedToken } = req.body;
-    const result = {
-      phone: phone,
-      password: password,
-      verifiedToken: verifiedToken,
-    };
+
     const errors = validationResult(req).array({ onlyFirstError: true });
     {
       if (errors.length > 0) {
@@ -221,9 +218,36 @@ export const confirmPassword = [
         throw error;
       }
     }
+
+    // Check User Already Exist
+    const user = await getUserByPhone(phone);
+    checkUserExist(user);
+
+    // Check OtpRow
+    const otpRow = await getOtpByPhone(phone);
+    checkOtpRow(otpRow);
+
+    // Check VerifiedToken
+    if (otpRow!.error === 5) {
+      const error: any = new Error("This request might be an attack!");
+      error.status = 404;
+      error.code = "Error_BadRequest";
+      throw error;
+    }
+
+    if (otpRow!.verifiedToken != verifiedToken) {
+      const otpData = {
+        error: 5,
+      };
+      updateOtp(otpRow!.id, otpData);
+      const error: any = new Error("This request might be an attack!");
+      error.status = 404;
+      error.code = "Error_BadRequest";
+      throw error;
+    }
+
     res.status(200).json({
       message: "register haha hoho",
-      password: result.password,
     });
   },
 ];
