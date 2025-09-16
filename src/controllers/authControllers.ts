@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { body, ExpressValidator, validationResult } from "express-validator";
 import {
   createOtp,
+  createUser,
   getOtpByPhone,
   getUserByPhone,
   updateOtp,
@@ -15,6 +16,8 @@ import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
 import moment from "moment";
 import { token } from "morgan";
+import { createError } from "../utils/error";
+import jwt from "jsonwebtoken";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -212,10 +215,7 @@ export const confirmPassword = [
     {
       if (errors.length > 0) {
         console.log(errors);
-        const error: any = new Error(errors[0]?.msg);
-        error.status = 400;
-        error.code = "Error_InvalidPassword";
-        throw error;
+        return next(createError(errors[0]?.msg, 400, "Error_InvalidPassword"));
       }
     }
 
@@ -229,25 +229,57 @@ export const confirmPassword = [
 
     // Check VerifiedToken
     if (otpRow!.error === 5) {
-      const error: any = new Error("This request might be an attack!");
-      error.status = 404;
-      error.code = "Error_BadRequest";
-      throw error;
+      return next(
+        createError("This request might be an attack!", 404, "Error_BadRequest")
+      );
     }
 
-    if (otpRow!.verifiedToken != verifiedToken) {
+    if (otpRow!.verifiedToken !== verifiedToken) {
       const otpData = {
         error: 5,
       };
-      updateOtp(otpRow!.id, otpData);
-      const error: any = new Error("This request might be an attack!");
-      error.status = 404;
-      error.code = "Error_BadRequest";
-      throw error;
+      await updateOtp(otpRow!.id, otpData);
+      return next(
+        createError("This request might be an attack!", 404, "Error_BadRequest")
+      );
     }
 
+    const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 15;
+    if (isExpired) {
+      return next(
+        createError(
+          "Your request is expired. Please try again.",
+          403,
+          "Error_Expired"
+        )
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    const randToken = "Will Replace This Later";
+
+    const userData = {
+      phone,
+      password: hashPassword,
+      randToken,
+    };
+
+    const newUser = await createUser(userData);
+    const accessTokenPayload = { id: newUser.id };
+    const refreshTokenPayload = { id: newUser.id, phone: newUser.phone };
+
+    const accessToken = jwt.sign(
+      accessTokenPayload,
+      process.env.AccessTokenSecret!
+    );
+    const refreshToken = jwt.sign(
+      refreshTokenPayload,
+      process.env.RefreshTokenSecret!
+    );
+
     res.status(200).json({
-      message: "register haha hoho",
+      message: "register",
     });
   },
 ];
