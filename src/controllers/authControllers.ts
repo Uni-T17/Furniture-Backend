@@ -6,6 +6,7 @@ import {
   getOtpByPhone,
   getUserByPhone,
   updateOtp,
+  updateUser,
 } from "../services/authServices";
 import {
   checkIsSameDateAndError,
@@ -271,16 +272,44 @@ export const confirmPassword = [
 
     const accessToken = jwt.sign(
       accessTokenPayload,
-      process.env.AccessTokenSecret!
+      process.env.AccessTokenSecret!,
+      {
+        expiresIn: 15 * 60, // 15 min
+      }
     );
     const refreshToken = jwt.sign(
       refreshTokenPayload,
-      process.env.RefreshTokenSecret!
+      process.env.RefreshTokenSecret!,
+      {
+        expiresIn: "30d", // 30 days
+      }
     );
 
-    res.status(200).json({
-      message: "register",
-    });
+    // update Refresh Token
+    const newUserData = {
+      randToken: refreshToken,
+    };
+
+    await updateUser(newUser.id, newUserData);
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 15 * 60 * 1000, // 15 min
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      })
+      .status(201)
+      .json({
+        message: "Successfully register a new user.",
+        userId: newUser.id,
+      });
   },
 ];
 export const login = async (
