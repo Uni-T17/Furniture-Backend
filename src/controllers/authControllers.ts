@@ -312,12 +312,19 @@ export const confirmPassword = [
       });
   },
 ];
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  res.status(200).json({
-    message: "register",
-  });
-};
+export const login = [
+  body("phone", "Invalid Phone Number.")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 8, max: 12 }),
+  body("password", "Password Must be 8 digits.")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      message: "register",
+    });
+  },
+];
