@@ -324,7 +324,7 @@ export const login = [
     .isLength({ min: 8, max: 15 }),
   async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).json({
-      message: "register",
+      message: "register now",
     });
   },
 ];
