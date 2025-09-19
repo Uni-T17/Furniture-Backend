@@ -6,10 +6,9 @@ import cors from "cors";
 
 import { limiter } from "./middlewears/rateLimit";
 import { check, customRequest } from "./middlewears/check";
-import healthRoutes from "./routes/v1/healthRoutes";
-import homeRoute from "./routes/web/home";
-import authRoutes from "./routes/v1/authRoutes"
-import * as errorController from "./controllers/web/errorController"
+
+import authRoutes from "./routes/v1/authRoutes";
+import adminRoutes from "./routes/v1/admin/adminRoutes";
 
 export const app = express();
 
@@ -34,14 +33,10 @@ app
   .use(compression())
   .use(limiter);
 
-  app.use(express.static("public"))
+// app.use(express.static("public"));
 
-app.set("view engine", "ejs")
-app.set("views" , "src/views")
-
-app.use("/api/v1", healthRoutes);
-app.use("/api/v1", authRoutes)
-app.use(homeRoute);
+app.use("/api/v1", authRoutes);
+app.use("/api/v1", adminRoutes);
 
 // app.use(errorController.notFound);
 
