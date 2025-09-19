@@ -273,14 +273,14 @@ export const confirmPassword = [
 
     const accessToken = jwt.sign(
       accessTokenPayload,
-      process.env.AccessTokenSecret!,
+      process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: 15 * 60, // 15 min
       }
     );
     const refreshToken = jwt.sign(
       refreshTokenPayload,
-      process.env.RefreshTokenSecret!,
+      process.env.REFRESH_TOKEN_SECRET!,
       {
         expiresIn: "30d", // 30 days
       }
@@ -381,7 +381,7 @@ export const login = [
 
     const accessToken = jwt.sign(
       accessTokenPayload,
-      process.env.AccessTokenSecret!,
+      process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: 15 * 60, // 15 min
       }
@@ -394,7 +394,7 @@ export const login = [
 
     const refreshToken = jwt.sign(
       refreshTokenPayload,
-      process.env.RefreshTokenSecret!
+      process.env.REFRESH_TOKEN_SECRET!
     );
 
     res

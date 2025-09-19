@@ -11,6 +11,7 @@ import authRoutes from "./routes/v1/authRoutes";
 import adminRoutes from "./routes/v1/admin/adminRoutes";
 import CookieParser from "cookie-parser";
 import cookieParser from "cookie-parser";
+import { auth } from "./middlewears/auth";
 
 export const app = express();
 
@@ -39,7 +40,7 @@ app
 // app.use(express.static("public"));
 
 app.use("/api/v1", authRoutes);
-app.use("/api/v1", adminRoutes);
+app.use("/api/v1", auth, adminRoutes);
 
 // app.use(errorController.notFound);
 
