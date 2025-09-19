@@ -323,6 +323,10 @@ export const login = [
     .notEmpty()
     .isLength({ min: 8, max: 15 }),
   async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0]?.msg, 409, "Error_InvalidInput"));
+    }
     res.status(200).json({
       message: "register now",
     });
