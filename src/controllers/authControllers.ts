@@ -12,6 +12,7 @@ import {
   checkIsSameDateAndError,
   checkOtpRow,
   checkUserExist,
+  checkUserNotExist,
 } from "../utils/auth";
 import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
@@ -327,8 +328,87 @@ export const login = [
     if (errors.length > 0) {
       return next(createError(errors[0]?.msg, 409, "Error_InvalidInput"));
     }
-    res.status(200).json({
-      message: "register now",
-    });
+
+    let phone: string = req.body.phone;
+    let password = req.body.password;
+
+    if (phone.slice(0, 2) === "09") {
+      phone = phone.substring(2, phone.length);
+    }
+
+    const user = await getUserByPhone(phone);
+
+    // Check User Exist Or Not
+    checkUserNotExist(user);
+
+    // check freeze user?
+    if (user!.status === "FREEZE") {
+      return next(createError("This User is Freezed!", 401, "Error_Freezed"));
+    }
+
+    // check match password
+    const isMatchPassword = await bcrypt.compare(password, user!.password);
+
+    // Check Password Mistake times
+    if (!isMatchPassword) {
+      let userData;
+      // In Same Day
+      const lastUpdated = new Date(user!.updatedAt).toLocaleDateString();
+      const today = new Date().toLocaleDateString();
+      if (lastUpdated === today) {
+        // Freeze if more than 2 time
+        if (user!.errorLoginCount >= 2) {
+          userData = {
+            status: "FREEZE",
+          };
+        } else {
+          userData = {
+            errorLoginCount: { increment: 1 },
+          };
+        }
+      } else {
+        // Not Same Day
+        userData = {
+          errorLoginCount: 1,
+        };
+      }
+      updateUser(user!.id, userData);
+      return next(createError("Wrong Password!", 401, "Error_WrongPassword"));
+    }
+
+    const accessTokenPayload = { id: user!.id };
+    const refreshTokenPayload = { id: user!.id, phone: user!.phone };
+
+    const accessToken = jwt.sign(
+      accessTokenPayload,
+      process.env.AccessTokenSecret!,
+      {
+        expiresIn: 15 * 60, // 15 min
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      refreshTokenPayload,
+      process.env.RefreshTokenSecret!
+    );
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        message: "Successfully Register",
+        userId: user!.id,
+      });
   },
 ];
