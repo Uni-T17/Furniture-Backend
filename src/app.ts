@@ -9,6 +9,8 @@ import { check, customRequest } from "./middlewears/check";
 
 import authRoutes from "./routes/v1/authRoutes";
 import adminRoutes from "./routes/v1/admin/adminRoutes";
+import CookieParser from "cookie-parser";
+import cookieParser from "cookie-parser";
 
 export const app = express();
 
@@ -28,6 +30,7 @@ app
   .use(morgan("dev"))
   .use(express.urlencoded({ extended: true }))
   .use(express.json())
+  .use(cookieParser())
   .use(cors())
   .use(helmet())
   .use(compression())

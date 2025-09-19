@@ -387,6 +387,11 @@ export const login = [
       }
     );
 
+    const userData = {
+      errorLoginCount: 0,
+    };
+    await updateUser(user!.id, userData);
+
     const refreshToken = jwt.sign(
       refreshTokenPayload,
       process.env.RefreshTokenSecret!
