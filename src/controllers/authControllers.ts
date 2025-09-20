@@ -4,6 +4,7 @@ import {
   createOtp,
   createUser,
   getOtpByPhone,
+  getUserById,
   getUserByPhone,
   updateOtp,
   updateUser,
@@ -417,3 +418,73 @@ export const login = [
       });
   },
 ];
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const refreshToken = req.cookies ? req.cookies.refreshToken : null;
+
+  // Check Refresh Token Exist Or Not
+  if (!refreshToken) {
+    return next(
+      createError(
+        "Your are not an unauthenticated User",
+        401,
+        "Error_Unauthenticated"
+      )
+    );
+  }
+  // Decode the token and check matching
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
+      id: number;
+      phone: string;
+    };
+  } catch (error) {
+    return next(
+      createError(
+        "Your are not an unauthenticated User",
+        401,
+        "Error_Unauthenticated"
+      )
+    );
+  }
+
+  if (isNaN(decoded!.id)) {
+    return next(
+      createError(
+        "Your are not an unauthenticated User",
+        401,
+        "Error_Unauthenticated"
+      )
+    );
+  }
+  // Get user by id and check not exist
+  const user = await getUserById(decoded!.id);
+  checkUserNotExist(user);
+
+  // update the user randToken
+  const userData = {
+    randToken: generateToken(),
+  };
+
+  await updateUser(user!.id, userData);
+
+  // Remove tokens
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  });
+
+  // Give Back Successful Response
+  res.status(200).json({ message: "Successfully log out. See You Soon!" });
+};
