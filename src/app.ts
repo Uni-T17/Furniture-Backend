@@ -27,12 +27,31 @@ export const app = express();
 
 // app.use(compression()); // to compress zip file for faster response but use more CPU(can ignore)
 
+// Add  CORS
+var whitelist = ["http://example1.com", "http://localhost:5173"];
+var corsOptions = {
+  origin: function (
+    origin: any,
+    callback: (err: Error | null, origin?: any) => void
+  ) {
+    // this is for mobile and
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
 app
   .use(morgan("dev"))
   .use(express.urlencoded({ extended: true }))
   .use(express.json())
   .use(cookieParser())
-  .use(cors())
+  .use(cors(corsOptions))
   .use(helmet())
   .use(compression())
   .use(limiter);
