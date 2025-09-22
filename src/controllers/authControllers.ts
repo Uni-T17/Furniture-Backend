@@ -387,16 +387,16 @@ export const login = [
         expiresIn: 15 * 60, // 15 min
       }
     );
-
-    const userData = {
-      errorLoginCount: 0,
-    };
-    await updateUser(user!.id, userData);
-
     const refreshToken = jwt.sign(
       refreshTokenPayload,
       process.env.REFRESH_TOKEN_SECRET!
     );
+
+    const userData = {
+      errorLoginCount: 0,
+      randToken: refreshToken,
+    };
+    await updateUser(user!.id, userData);
 
     res
       .cookie("accessToken", accessToken, {
