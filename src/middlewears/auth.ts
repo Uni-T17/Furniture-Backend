@@ -7,6 +7,14 @@ interface CustomRequest extends Request {
 }
 
 export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
+  // For Mobile
+  // const platform = req.headers["x-platform"];
+  // if (platform === "mobile") {
+  //   const accessTokenMobile = req.headers.authorization?.split(" ")[1];
+  //   console.log(`This is for moblie ${accessTokenMobile}`);
+  // } else {
+  //   console.log("This is not mobile");
+  // }
   const accessToken = req.cookies ? req.cookies.accessToken : null;
 
   const refreshToken = req.cookies ? req.cookies.refreshToken : null;
