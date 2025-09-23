@@ -63,6 +63,7 @@ app
 
 // app.use(express.static("public"));
 
+// i18next use backend and middlewear to detect language and initialize it
 i18next
   .use(Backend)
   .use(middleWare.LanguageDetector)

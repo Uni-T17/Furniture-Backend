@@ -374,7 +374,9 @@ export const login = [
         };
       }
       updateUser(user!.id, userData);
-      return next(createError("Wrong Password!", 401, "Error_WrongPassword"));
+      return next(
+        createError(req.t("Wrong Password!"), 401, "Error_WrongPassword")
+      );
     }
 
     const accessTokenPayload = { id: user!.id };
