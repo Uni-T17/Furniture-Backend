@@ -47,7 +47,7 @@ export const auth = async (
       );
     }
 
-    // If there is no id in token
+    // If id is not a number
     if (isNaN(decoded.id)) {
       return next(
         createError(
@@ -163,6 +163,15 @@ export const auth = async (
       id: number;
     };
 
+    if (isNaN(decoded!.id)) {
+      return next(
+        createError(
+          "You are not an authenticated user!",
+          401,
+          errorCode.unauthenticated
+        )
+      );
+    }
     req.userId = decoded!.id;
     next();
   } catch (error: any) {
