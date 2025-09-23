@@ -10,7 +10,7 @@ export const getAllUsers = (
   next: NextFunction
 ) => {
   res.status(200).json({
-    message: "All Users.",
+    message: req.t("Welcome"),
     userId: req.userId,
   });
 };
