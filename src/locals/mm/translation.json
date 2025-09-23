@@ -1,4 +1,5 @@
 {
   "Welcome": "မေမေထထက",
-  "Wrong Password!": "နေကောင်း?"
+  "Wrong Password!": "နေကောင်း?",
+  "SuccessLang": "နေကောင်း - {{language}}"
 }

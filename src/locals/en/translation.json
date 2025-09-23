@@ -1,4 +1,5 @@
 {
   "Welcome": "Welcome To Our Furniture",
-  "Wrong Password!": "Your password is wrong!"
+  "Wrong Password!": "Your password is wrong!",
+  "SuccessLang": "Successfully Change Langauge - {{language}}"
 }
