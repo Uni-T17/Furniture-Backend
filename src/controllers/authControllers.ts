@@ -19,8 +19,9 @@ import { generateOtp, generateToken } from "../utils/generate";
 import * as bcrypt from "bcrypt";
 import moment from "moment";
 import { token } from "morgan";
-import { createError } from "../utils/error";
+import { createError, errorCode } from "../utils/error";
 import jwt from "jsonwebtoken";
+import { removeZeroNine } from "../utils/helper";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -32,15 +33,10 @@ export const register = [
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
-      const error: any = new Error(errors[0]?.msg);
-      error.status = 400;
-      error.code = "Error_Invalid_Hey";
-      throw next(error);
+      throw next(createError(errors[0]?.msg, 400, errorCode.invalid));
     }
     let phone: string = req.body.phone;
-    if (phone.slice(0, 2) === "09") {
-      phone = phone.substring(2, phone.length);
-    }
+    phone = removeZeroNine(phone);
     const user = await getUserByPhone(phone);
     checkUserExist(user);
 
@@ -83,10 +79,13 @@ export const register = [
         count = 1;
       }
       if (count > 3) {
-        const error: any = new Error("Can't Request more than 3 time per day");
-        error.status = 405;
-        error.code = "Error_OtpLimited";
-        return next(error);
+        return next(
+          createError(
+            "Can't Request more than 3 time per day",
+            405,
+            errorCode.overLimit
+          )
+        );
       }
       result = await updateOtp(otpRow.id, {
         otp: hashOtp,
@@ -489,3 +488,97 @@ export const logout = async (
   // Give Back Successful Response
   res.status(200).json({ message: "Successfully log out. See You Soon!" });
 };
+
+export const forgetPassword = [
+  body("phone", "Invalid Phone Number")
+    .trim()
+    .notEmpty()
+    .matches("[0-9]+$")
+    .isLength({ min: 8, max: 15 }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0]!.msg, 400, errorCode.invalid));
+    }
+
+    // const refreshToken = req.cookies ? req.cookies.refreshToken : null;
+    // const accessToken = req.cookies ? req.cookies.accessToken : null;
+
+    // if (refreshToken | accessToken) {
+    //   return next(
+    //     createError(
+    //       "Your are not an unauthenticated User",
+    //       401,
+    //       "Error_Unauthenticated"
+    //     )
+    //   );
+    // }
+
+    let phone = req.body.phone;
+    // remove 09 if start with 09
+    phone = removeZeroNine(phone);
+
+    const user = await getUserByPhone(phone);
+    checkUserNotExist(user);
+
+    // get otpRow by phone
+    const otpRow = await getOtpByPhone(phone);
+    checkOtpRow(otpRow);
+
+    // Generate Otp
+    const otp = 123456;
+    const salt = await bcrypt.genSalt(10);
+    const hashOtp = await bcrypt.hash(otp.toString(), salt);
+
+    const token = generateToken();
+    const lastUpdated = new Date(otpRow!.updatedAt).toLocaleDateString();
+    const today = new Date().toLocaleDateString();
+    const isSameDate = lastUpdated === today;
+
+    checkIsSameDateAndError(isSameDate, otpRow!.error);
+
+    const expiredAt = new Date();
+    expiredAt.setMinutes(expiredAt.getMinutes() + 5);
+    let count;
+    if (isSameDate) {
+      count = otpRow!.count + 1;
+    } else {
+      count = 0;
+    }
+    if (count > 3) {
+      return next(
+        createError(
+          "Can't Request more than 3 time per day",
+          405,
+          errorCode.overLimit
+        )
+      );
+    }
+    const otpData = {
+      otp: hashOtp,
+      rememberToken: token,
+      count: count,
+    };
+
+    const result = await updateOtp(otpRow!.id, otpData);
+
+    res.status(200).json({
+      message: "Successfully send otp to reset password",
+      phone: result.phone,
+      token: result.rememberToken,
+      expiredAt: `Otp will be expired at ${expiredAt}`,
+    });
+  },
+];
+
+export const verifyOtpForgetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
