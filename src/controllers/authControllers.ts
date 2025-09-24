@@ -217,7 +217,6 @@ export const confirmPassword = [
     const errors = validationResult(req).array({ onlyFirstError: true });
     {
       if (errors.length > 0) {
-        console.log(errors);
         return next(createError(errors[0]?.msg, 400, "Error_InvalidPassword"));
       }
     }

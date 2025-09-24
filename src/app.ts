@@ -18,6 +18,7 @@ import Backend from "i18next-fs-backend";
 import middleWare from "i18next-http-middleware";
 import path from "path";
 import userRoutes from "./routes/v1/api/userRoutes";
+import { authorise } from "./middlewears/authorise";
 
 export const app = express();
 
@@ -89,7 +90,7 @@ app.use(middleWare.handle(i18next));
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
-app.use("/api/v1", auth, adminRoutes);
+app.use("/api/v1", auth, authorise(true, "ADMIN"), adminRoutes);
 
 // app.use(errorController.notFound);
 

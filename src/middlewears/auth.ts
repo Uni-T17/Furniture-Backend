@@ -26,17 +26,14 @@ export const auth = async (
   const refreshToken = req.cookies ? req.cookies.refreshToken : null;
 
   const generateNewToken = async () => {
-    console.log("HEllo");
     // Decode the refreshToken and check correct or not
 
     let decoded;
     try {
-      console.log(refreshToken);
       decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
         id: number;
         phone: string;
       };
-      console.log(decoded.id);
     } catch (error) {
       return next(
         createError(
@@ -74,13 +71,9 @@ export const auth = async (
         )
       );
     }
-    console.log(user!.randToken);
-    console.log(refreshToken);
 
     // Check randToken same or not
     if (user!.randToken !== refreshToken) {
-      console.log("Is that here");
-
       return next(
         createError(
           "You are not an authenticated user!",
@@ -116,10 +109,6 @@ export const auth = async (
 
     await updateUser(user!.id, userData);
 
-    console.log("Look at this ");
-
-    console.log(newAccessToken);
-
     // Put Tokens In res Cookies
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
@@ -149,16 +138,14 @@ export const auth = async (
     );
   }
   if (!accessToken) {
-    console.log("This is here ");
     await generateNewToken();
   }
 
   // Verify Access Token
   let decoded;
   try {
-    console.log("Is there anything");
     // Need to declare type for the decoded object
-    console.log(accessToken);
+
     decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as {
       id: number;
     };
@@ -175,7 +162,6 @@ export const auth = async (
     req.userId = decoded!.id;
     next();
   } catch (error: any) {
-    console.log(error.name);
     if (error.name === "TokenExpiredError") {
       await generateNewToken();
     } else {
