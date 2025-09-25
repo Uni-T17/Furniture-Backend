@@ -643,8 +643,95 @@ export const verifyOtpForgetPassword = [
   },
 ];
 
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+export const resetPassword = [
+  body("phone", "Invalid Phone Number")
+    .trim()
+    .notEmpty()
+    .matches("^[0-9]+$")
+    .isLength({ min: 5, max: 12 }),
+  body("password", "Invalid Password")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 8, max: 15 }),
+  body("verifiedToken", "Invalid Token").trim().notEmpty().escape(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0]!.msg, 400, errorCode.invalid));
+    }
+
+    const { phone, password, verifiedToken } = req.body;
+
+    const user = await getUserByPhone(phone);
+    checkUserNotExist(user);
+
+    const otpRow = await getOtpByPhone(phone);
+    checkOtpRow(otpRow);
+
+    if (otpRow!.error >= 5) {
+      return next(
+        createError("This request might be an attack!", 404, errorCode.attack)
+      );
+    }
+
+    if (otpRow!.verifiedToken !== verifiedToken) {
+      const otpData = {
+        error: 5,
+      };
+      await updateOtp(otpRow!.id, otpData);
+      return next(
+        createError("This request might be an attack!", 404, errorCode.attack)
+      );
+    }
+
+    const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 15;
+
+    if (isExpired) {
+      return next(
+        createError("Your request is expired!", 404, errorCode.requestExpired)
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    const accessTokenPayload = { id: user!.id };
+    const refreshTokenPayload = { id: user!.id, phone: user!.phone };
+
+    const accessToken = jwt.sign(
+      accessTokenPayload,
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: 15 * 60 }
+    );
+    const refreshToken = jwt.sign(
+      accessTokenPayload,
+      process.env.REFRESH_TOKEN_SECRET!,
+      { expiresIn: "30d" }
+    );
+
+    const userData = {
+      password: hashPassword,
+      randToken: refreshToken,
+    };
+    await updateUser(user!.id, userData);
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 15 * 60 * 1000, //
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        message: "Successfully change password!",
+        userId: user!.id,
+      });
+  },
+];
