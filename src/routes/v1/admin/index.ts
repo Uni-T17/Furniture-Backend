@@ -4,6 +4,6 @@ import { auth } from "../../../middlewears/auth";
 
 const adminRoutes = Router();
 
-adminRoutes.get("/admin", getAllUsers);
+adminRoutes.get("/getusers", getAllUsers);
 
 export default adminRoutes;

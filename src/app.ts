@@ -5,20 +5,14 @@ import morgan from "morgan";
 import cors from "cors";
 
 import { limiter } from "./middlewears/rateLimit";
-import { check, customRequest } from "./middlewears/check";
 
-import authRoutes from "./routes/v1/authRoutes";
-import adminRoutes from "./routes/v1/admin/adminRoutes";
-import CookieParser from "cookie-parser";
 import cookieParser from "cookie-parser";
-import { auth } from "./middlewears/auth";
 
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import middleWare from "i18next-http-middleware";
 import path from "path";
-import userRoutes from "./routes/v1/api/userRoutes";
-import { authorise } from "./middlewears/authorise";
+import routes from "./routes/v1";
 
 export const app = express();
 
@@ -88,9 +82,7 @@ i18next
 
 app.use(middleWare.handle(i18next));
 
-app.use("/api/v1", authRoutes);
-app.use("/api/v1", userRoutes);
-app.use("/api/v1", auth, authorise(true, "ADMIN"), adminRoutes);
+app.use(routes);
 
 // app.use(errorController.notFound);
 
