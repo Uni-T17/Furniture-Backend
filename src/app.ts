@@ -14,7 +14,8 @@ import middleWare from "i18next-http-middleware";
 import path from "path";
 import routes from "./routes/v1";
 import { maintenance } from "./middlewears/maintenance";
-
+import cron from "node-cron";
+import { createOrUpdateSetting, getSettingStatus } from "./services/settings";
 export const app = express();
 
 // app.use(morgan("dev")); // Give log for every api usage from frontend
@@ -98,3 +99,14 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(errorStatus).json({ message: errorMsg, error: errorCode });
   next();
 });
+
+// Turn off every minute
+// "* * * * *" = " minute hour dayOfMonth month weekday"
+// cron.schedule("* * * * *", async () => {
+//   console.log("Running every minute");
+//   const isMaintenance = await getSettingStatus("maintenance");
+//   if (isMaintenance?.value === "true") {
+//     await createOrUpdateSetting("maintenance", "false");
+//     console.log("Successful turn off maintenance.");
+//   }
+// });
