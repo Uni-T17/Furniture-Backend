@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { getAllUsers } from "../../../controllers/admin/userControllers";
-import { maintainenceSetting } from "../../../controllers/admin/setting";
+import { maintenanceSetting } from "../../../controllers/admin/setting";
 
 const adminRoutes = Router();
 
 adminRoutes.get("/getusers", getAllUsers);
-adminRoutes.post("/change-maintainence", maintainenceSetting);
+adminRoutes.post("/change-maintenance", maintenanceSetting);
 
 export default adminRoutes;

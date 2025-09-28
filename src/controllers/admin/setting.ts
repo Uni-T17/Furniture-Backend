@@ -7,7 +7,7 @@ interface CustomRequest extends Request {
   userId?: number;
 }
 
-export const maintainenceSetting = [
+export const maintenanceSetting = [
   body("mode", "Mode Must be boolean").isBoolean(),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
@@ -18,10 +18,10 @@ export const maintainenceSetting = [
     const { mode } = req.body;
     const value = mode ? "true" : "false";
     const message = mode
-      ? "Successfully set maintainence mode!"
-      : "Successfully turn off maintainence mode!";
+      ? "Successfully set maintenance mode!"
+      : "Successfully turn off maintenance mode!";
 
-    await createOrUpdateSetting("maintainence", value);
+    await createOrUpdateSetting("maintenance", value);
     res.status(200).json({
       message: message,
     });
