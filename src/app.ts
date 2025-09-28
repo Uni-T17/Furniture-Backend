@@ -13,6 +13,7 @@ import Backend from "i18next-fs-backend";
 import middleWare from "i18next-http-middleware";
 import path from "path";
 import routes from "./routes/v1";
+import { maintenance } from "./middlewears/maintenance";
 
 export const app = express();
 
@@ -83,6 +84,9 @@ i18next
 app.use(middleWare.handle(i18next));
 
 app.use(routes);
+
+// This is maintenance mode Can also add maintenance mode in the routes
+// app.use(maintenance, routes);
 
 // app.use(errorController.notFound);
 
