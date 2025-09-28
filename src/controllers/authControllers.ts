@@ -407,7 +407,7 @@ export const login = [
       })
       .status(200)
       .json({
-        message: "Successfully Register",
+        message: "Successfully Login",
         userId: user!.id,
       });
   },
