@@ -2,8 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { query, validationResult } from "express-validator";
 import { createError, errorCode } from "../../utils/error";
 import { checkUserNotExist } from "../../utils/auth";
-import { getUserById } from "../../services/authServices";
+import { getUserById, updateUser } from "../../services/authServices";
 import { checkFileNotExist } from "../../utils/check";
+import path from "path";
+import { unlink } from "fs/promises";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -37,5 +39,32 @@ export const uploadProfile = async (
   res: Response,
   next: NextFunction
 ) => {
-  res.status(200).json({ message: "Successfully upload profile" });
+  const user = await getUserById(req.userId!);
+  checkUserNotExist(user);
+  const image = req.file;
+  checkFileNotExist(image);
+  console.log(image.filename);
+
+  if (user!.image!) {
+    const filePath = path.join(
+      __dirname,
+      "../../../upload/images/",
+      user!.image
+    );
+    try {
+      await unlink(filePath);
+    } catch (error) {
+      console.log("File doesn't exist!");
+    }
+  }
+
+  const userData = {
+    image: image.filename,
+  };
+
+  await updateUser(user!.id, userData);
+
+  res
+    .status(200)
+    .json({ message: "Successfully upload profile", image: user!.image });
 };
