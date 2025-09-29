@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { query, validationResult } from "express-validator";
 import { createError, errorCode } from "../../utils/error";
+import { checkUserNotExist } from "../../utils/auth";
+import { getUserById } from "../../services/authServices";
+import { checkFileNotExist } from "../../utils/check";
 
 interface CustomRequest extends Request {
   userId?: number;
+  file?: any;
 }
 
 export const changeLanguage = [
@@ -27,3 +31,11 @@ export const changeLanguage = [
       .json({ message: req.t("SuccessLang", { language: lng }) });
   },
 ];
+
+export const uploadProfile = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  res.status(200).json({ message: "Successfully upload profile" });
+};
