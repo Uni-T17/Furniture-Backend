@@ -13,7 +13,7 @@ const fileStorage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSurfix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSurfix + "-" + file.originalname);
+    cb(null, uniqueSurfix + "-" + file.originalname.trim());
   },
 });
 

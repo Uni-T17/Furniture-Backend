@@ -66,5 +66,5 @@ export const uploadProfile = async (
 
   res
     .status(200)
-    .json({ message: "Successfully upload profile", image: user!.image });
+    .json({ message: "Successfully upload profile", image: image.filename });
 };
