@@ -37,7 +37,7 @@ export const auth = async (
     } catch (error) {
       return next(
         createError(
-          "You are not an authenticated user!",
+          "You are not an authenticated user!!",
           401,
           errorCode.unauthenticated
         )
