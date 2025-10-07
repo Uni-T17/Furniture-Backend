@@ -22,6 +22,7 @@ import { token } from "morgan";
 import { createError, errorCode } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { removeZeroNine } from "../utils/helper";
+import { sendOtp } from "../utils/getOtp";
 
 export const register = [
   body("phone", "Invalid Phone Number")
@@ -47,8 +48,9 @@ export const register = [
     // make Expired time
     // Save Otp to Database
     //Check Otp Avaiablity
-    const otp = 123456; /// Production Only
-    // const otp =  generateOtp();
+    // const otp = 123456; /// Production Only
+    const otp = generateOtp();
+    await sendOtp(`${phone.toString()}@lamduan.mfu.ac.th`, otp);
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
 

@@ -45,6 +45,7 @@
     "@prisma/client": "^6.14.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/ejs": "^3.1.5",
+    "@types/nodemailer": "^7.0.2",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
@@ -64,6 +65,7 @@
     "moment": "^2.30.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.9"
   }
 }
