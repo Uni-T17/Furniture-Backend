@@ -48,9 +48,9 @@ export const register = [
     // make Expired time
     // Save Otp to Database
     //Check Otp Avaiablity
-    // const otp = 123456; /// Production Only
-    const otp = generateOtp();
-    await sendOtp(`${phone.toString()}@lamduan.mfu.ac.th`, otp);
+    const otp = 123456; /// Production Only
+    // const otp = generateOtp();
+    // await sendOtp(`${phone.toString()}@lamduan.mfu.ac.th`, otp);
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
 
