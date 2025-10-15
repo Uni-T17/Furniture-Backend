@@ -123,10 +123,7 @@ export const verifyOtp = [
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
-      const error: any = new Error(errors[0]?.msg);
-      error.status = 409;
-      error.code = "Error_InvalidOTP";
-      throw error;
+      return next(createError(errors[0]?.msg, 409, errorCode.invalid));
     }
 
     const { phone, otp, rememberToken } = req.body;
@@ -147,10 +144,7 @@ export const verifyOtp = [
         error: 5,
       };
       await updateOtp(otpRow!.id, otpData);
-      const error: any = new Error("Invalid Token");
-      error.status = 400;
-      error.code = "Error_InvalidToken";
-      throw error;
+      return next(createError("Invalid Token!", 400, errorCode.invalid));
     }
 
     const isExpired = moment().diff(otpRow!.updatedAt, "minute") > 2;

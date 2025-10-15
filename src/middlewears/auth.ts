@@ -112,8 +112,8 @@ export const auth = async (
     // Put Tokens In res Cookies
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NONE_ENV === "production",
-      sameSite: process.env.NONE_ENV === "production" ? "none" : "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 15 * 60 * 1000, // 15 min
     });
     res.cookie("refreshToken", newRefreshToken, {
