@@ -31,7 +31,11 @@ export const app = express();
 // app.use(compression()); // to compress zip file for faster response but use more CPU(can ignore)
 
 // Add  CORS
-var whitelist = ["http://example1.com", "http://localhost:5173"];
+var whitelist = [
+  "http://example1.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
 var corsOptions = {
   origin: function (
     origin: any,

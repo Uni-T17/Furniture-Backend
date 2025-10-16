@@ -139,13 +139,13 @@ export const auth = async (
   }
   if (!accessToken) {
     await generateNewToken();
+    return;
   }
 
   // Verify Access Token
   let decoded;
   try {
     // Need to declare type for the decoded object
-
     decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as {
       id: number;
     };
@@ -160,10 +160,11 @@ export const auth = async (
       );
     }
     req.userId = decoded!.id;
-    next();
+    return next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       await generateNewToken();
+      return;
     } else {
       return next(
         createError("Access Token is Invalid", 401, errorCode.attack)
