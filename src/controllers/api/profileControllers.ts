@@ -85,7 +85,7 @@ export const uploadOptimizeProfile = async (
   try {
     const optimizedImagePath = path.join(
       __dirname,
-      "../../../images/upload",
+      "../../../upload/images/",
       fileName
     );
     await sharp(req.file?.buffer)

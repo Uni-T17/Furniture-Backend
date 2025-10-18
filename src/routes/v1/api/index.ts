@@ -1,11 +1,12 @@
 import express from "express";
 import {
   changeLanguage,
+  uploadOptimizeProfile,
   uploadProfile,
 } from "../../../controllers/api/profileControllers";
 import { testPermission } from "../../../controllers/admin/userControllers";
 import { auth } from "../../../middlewears/auth";
-import upload from "../../../middlewears/uploadFile";
+import upload, { uploadOptimize } from "../../../middlewears/uploadFile";
 
 const userRoutes = express.Router();
 
@@ -15,8 +16,8 @@ userRoutes.put("/profile/upload", auth, upload.single("avatar"), uploadProfile);
 userRoutes.put(
   "/profile/uploadOptimize",
   auth,
-  upload.single("avatar"),
-  uploadProfile
+  uploadOptimize.single("avatar"),
+  uploadOptimizeProfile
 );
 
 export default userRoutes;
