@@ -16,7 +16,7 @@ userRoutes.put("/profile/upload", auth, upload.single("avatar"), uploadProfile);
 userRoutes.put(
   "/profile/uploadOptimize",
   auth,
-  uploadOptimize.single("avatar"),
+  upload.single("avatar"),
   uploadOptimizeProfile
 );
 
