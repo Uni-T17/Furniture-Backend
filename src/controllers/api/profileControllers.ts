@@ -85,10 +85,23 @@ export const uploadOptimizeProfile = async (
 
   const splitFileName = image.filename.split(".")[0];
 
-  const job = await ImageQueue.add("imageOptimize", {
-    filePath: image.path,
-    fileName: splitFileName + ".webp",
-  });
+  const job = await ImageQueue.add(
+    "imageOptimize",
+    {
+      filePath: image.path,
+      fileName: splitFileName + ".webp",
+      width: 200,
+      height: 200,
+      quality: 70,
+    },
+    {
+      attempts: 3,
+      backoff: {
+        type: "exponential", // every time failed delay time is increased by exponenent
+        delay: 1000, // will wait 1 second and then ^
+      },
+    }
+  );
 
   // const fileName = Date.now() + "-" + `${Math.round(Math.random() * 1e9)}.webp`;
   // try {
