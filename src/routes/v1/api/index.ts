@@ -7,6 +7,7 @@ import {
 import { testPermission } from "../../../controllers/admin/userControllers";
 import { auth } from "../../../middlewears/auth";
 import upload, { uploadOptimize } from "../../../middlewears/uploadFile";
+import { getPost, getPosts } from "../../../controllers/api/postControllers";
 
 const userRoutes = express.Router();
 
@@ -19,5 +20,8 @@ userRoutes.put(
   upload.single("avatar"),
   uploadOptimizeProfile
 );
+
+userRoutes.get("/posts/get-post/:id", auth, getPost);
+userRoutes.get("/posts/get-posts", getPosts);
 
 export default userRoutes;

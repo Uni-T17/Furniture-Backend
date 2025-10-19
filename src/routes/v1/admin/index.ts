@@ -6,6 +6,7 @@ import {
   deletePost,
   updatePost,
 } from "../../../controllers/admin/postControllers";
+import upload from "../../../middlewears/uploadFile";
 
 const adminRoutes = Router();
 
@@ -13,8 +14,8 @@ adminRoutes.get("/getusers", getAllUsers);
 adminRoutes.post("/change-maintenance", maintenanceSetting);
 
 //Post Routes
-adminRoutes.post("/posts/createPost", createPost);
-adminRoutes.put("/post/updatePost/:id", updatePost);
-adminRoutes.delete("/posts/deletePost/:id", deletePost);
+adminRoutes.post("/posts/create-post", upload.single("post"), createPost);
+adminRoutes.put("/post/update-post", upload.single("post"), updatePost);
+adminRoutes.delete("/posts/delete-post", deletePost);
 
 export default adminRoutes;
