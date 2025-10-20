@@ -6,29 +6,22 @@ import { getUserById } from "../../services/authServices";
 import { checkFileNotExist } from "../../utils/check";
 import { createNewPost } from "../../services/postServices";
 import { PostType } from "../types/postType";
+import sanitizeHtml from "sanitize-html";
 
 interface CustomRequest extends Request {
   userId?: number;
 }
-
-// categoryId Int
-// category   Category @relation(fields: [categoryId], references: [id])
-// typeId     Int
-// type       Type     @relation(fields: [typeId], references: [id])
-// title      String   @db.VarChar(225)
-// content    String
-// body       String
-// image      String   @db.VarChar(255)
-// createdAt  DateTime @default(now())
-// updatedAt  DateTime @updatedAt
-// tags PostTag[]
 
 export const createPost = [
   body("category", "Invalid Category!").trim().notEmpty().escape(),
   body("type", "Invalid type!").trim().notEmpty().escape(),
   body("title", "Invalid Title!").trim().notEmpty().escape(),
   body("content", "Invalid Content!").trim().notEmpty().escape(),
-  body("body", "Invalid Body!").trim().notEmpty().escape(),
+  body("body", "Invalid Body!")
+    .trim()
+    .notEmpty()
+    .customSanitizer((value) => sanitizeHtml(value))
+    .notEmpty(),
   body("tags", "Invalid Content!")
     .optional({ nullable: true })
     .customSanitizer((value) => {
