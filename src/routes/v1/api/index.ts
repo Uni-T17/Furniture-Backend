@@ -21,7 +21,7 @@ userRoutes.put(
   uploadOptimizeProfile
 );
 
-userRoutes.get("/posts/get-post/:id", auth, getPost);
+userRoutes.get("/posts/get-post", auth, getPost);
 userRoutes.get("/posts/get-posts", getPosts);
 
 export default userRoutes;

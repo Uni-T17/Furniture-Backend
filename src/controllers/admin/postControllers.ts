@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { createError, errorCode } from "../../utils/error";
 import { body, validationResult } from "express-validator";
-import { checkUserNotExist } from "../../utils/auth";
+import {
+  checkUserNotExist,
+  checkUserNotExistAndRemoveFile,
+} from "../../utils/auth";
 import { getUserById } from "../../services/authServices";
 import { checkFileNotExist } from "../../utils/check";
 import { createNewPost } from "../../services/postServices";
 import { PostType } from "../types/postType";
 import sanitizeHtml from "sanitize-html";
+import { removeFile } from "../../utils/removeFile";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -34,13 +38,14 @@ export const createPost = [
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
-      return createError(errors[0]?.msg, 404, errorCode.invalid);
+      await removeFile(req.file?.filename!);
+      return next(createError(errors[0]?.msg, 404, errorCode.invalid));
     }
 
     const user = await getUserById(req.userId!);
     const image = req.file;
-    checkUserNotExist(user);
     checkFileNotExist(image);
+    await checkUserNotExistAndRemoveFile(user, image!.filename!);
     const { category, type, title, content, body, tags } = req.body;
 
     const postData: PostType = {

@@ -1,4 +1,5 @@
 import { createError, errorCode } from "./error";
+import { removeFile } from "./removeFile";
 
 export const checkUserExist = (user: any) => {
   if (user) {
@@ -32,6 +33,21 @@ export const checkOtpRow = (otpRow: any) => {
 
 export const checkUserNotExist = (user: any) => {
   if (!user) {
+    const error = createError(
+      "This phone number is not registered yet!",
+      401,
+      errorCode.unauthorised
+    );
+    throw error;
+  }
+};
+
+export const checkUserNotExistAndRemoveFile = async (
+  user: any,
+  fileName: string
+) => {
+  if (!user) {
+    await removeFile(fileName!);
     const error = createError(
       "This phone number is not registered yet!",
       401,
