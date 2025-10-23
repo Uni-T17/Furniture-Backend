@@ -28,7 +28,7 @@ export const authorise = (permission: boolean, ...roles: string[]) => {
     // if permission for this user (eg. the user is Admin and permission is false)
     if (!permission && result) {
       return next(
-        createError("You are not an ADMIN", 401, errorCode.unauthorised)
+        createError("You are not an ADMIN!!", 401, errorCode.unauthorised)
       );
     }
 
