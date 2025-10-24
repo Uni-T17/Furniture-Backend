@@ -36,34 +36,38 @@ export const createPost = [
       }
     }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const errors = validationResult(req).array({ onlyFirstError: true });
-    if (errors.length > 0) {
+    try {
+      const errors = validationResult(req).array({ onlyFirstError: true });
+      if (errors.length > 0) {
+        await removeFile(req.file?.filename!);
+        return next(createError(errors[0]?.msg, 404, errorCode.invalid));
+      }
+
+      const user = await getUserById(req.userId!);
+      const image = req.file;
+      checkFileNotExist(image);
+      await checkUserNotExistAndRemoveFile(user, image!.filename!);
+      const { category, type, title, content, body, tags } = req.body;
+
+      const postData: PostType = {
+        authorId: user!.id,
+        category: category,
+        type: type,
+        title: title,
+        content: content,
+        body: body,
+        image: image!.filename,
+        tags: tags,
+      };
+
+      const post = await createNewPost(postData);
+
+      res
+        .status(200)
+        .json({ message: "Successfully Create A New Post", postId: post.id });
+    } catch (error) {
       await removeFile(req.file?.filename!);
-      return next(createError(errors[0]?.msg, 404, errorCode.invalid));
     }
-
-    const user = await getUserById(req.userId!);
-    const image = req.file;
-    checkFileNotExist(image);
-    await checkUserNotExistAndRemoveFile(user, image!.filename!);
-    const { category, type, title, content, body, tags } = req.body;
-
-    const postData: PostType = {
-      authorId: user!.id,
-      category: category,
-      type: type,
-      title: title,
-      content: content,
-      body: body,
-      image: image!.filename,
-      tags: tags,
-    };
-
-    const post = await createNewPost(postData);
-
-    res
-      .status(200)
-      .json({ message: "Successfully Create A New Post", postId: post.id });
   },
 ];
 
