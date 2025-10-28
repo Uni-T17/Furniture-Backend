@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createError, errorCode } from "../../utils/error";
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import {
   checkUserNotExist,
   checkUserNotExistAndRemoveFile,
@@ -13,6 +13,7 @@ import {
 } from "../../utils/check";
 import {
   createNewPost,
+  deletePostById,
   getPostById,
   updatePostById,
 } from "../../services/postServices";
@@ -164,13 +165,34 @@ export const updatePost = [
   },
 ];
 export const deletePost = [
-  body("", ""),
+  body("postId", "Invalid PostId")
+    .trim()
+    .notEmpty()
+    .isInt({ min: 1, max: 20000 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
-      return createError(errors[0]?.msg, 404, errorCode.invalid);
+      return next(createError(errors[0]?.msg, 404, errorCode.invalid));
+    }
+    const user = await getUserById(req.userId!);
+    checkUserNotExist(user);
+    const { postId } = req.body;
+    const post = await getPostById(Number(postId));
+    checkPostNotExist(post);
+
+    if (user!.id !== post!.authorId) {
+      return next(
+        createError("You are not the author!", 400, errorCode!.invalid)
+      );
     }
 
-    res.status(200).json({ message: "OK!!" });
+    const image = post!.image;
+    const deletedPost = await deletePostById(post!.id);
+    await removeFile(image);
+    const deletedPostId = deletedPost.id;
+
+    res
+      .status(200)
+      .json({ message: "Successfully delete post.", deletedPostId });
   },
 ];

@@ -5,21 +5,6 @@ import { create } from "domain";
 
 const prisma = new PrismaClient();
 
-// id         Int      @id @default(autoincrement())
-//   authorId   Int
-//   author     User     @relation(fields: [authorId], references: [id])
-//   categoryId Int
-//   category   Category @relation(fields: [categoryId], references: [id])
-//   typeId     Int
-//   type       Type     @relation(fields: [typeId], references: [id])
-//   title      String   @db.VarChar(225)
-//   content    String
-//   body       String
-//   image      String   @db.VarChar(255)
-//   createdAt  DateTime @default(now())
-//   updatedAt  DateTime @updatedAt
-//   tags PostTag[]
-
 export const createNewPost = async (postData: PostType) => {
   let data: any = {
     author: {
@@ -119,5 +104,13 @@ export const updatePostById = async (postId: number, postData: PostType) => {
       id: postId,
     },
     data: data,
+  });
+};
+
+export const deletePostById = async (postId: number) => {
+  return await prisma.post.delete({
+    where: {
+      id: postId,
+    },
   });
 };
