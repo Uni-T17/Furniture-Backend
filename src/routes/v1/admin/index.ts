@@ -15,7 +15,7 @@ adminRoutes.post("/change-maintenance", maintenanceSetting);
 
 //Post Routes
 adminRoutes.post("/posts/create-post", upload.single("image"), createPost);
-adminRoutes.put("/post/update-post", upload.single("image"), updatePost);
+adminRoutes.put("/posts/update-post", upload.single("image"), updatePost);
 adminRoutes.delete("/posts/delete-post", deletePost);
 
 export default adminRoutes;
