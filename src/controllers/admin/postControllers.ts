@@ -91,6 +91,6 @@ export const deletePost = [
       return createError(errors[0]?.msg, 404, errorCode.invalid);
     }
 
-    res.status(200).json({ message: "OK" });
+    res.status(200).json({ message: "OK!!" });
   },
 ];
