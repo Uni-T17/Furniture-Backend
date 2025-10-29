@@ -30,7 +30,7 @@ export const register = [
     .notEmpty()
     .matches("^[0-9]+$")
     .isLength({ min: 5, max: 12 })
-    .withMessage("Phone Number Must Be 5-12 numbers"),
+    .withMessage("Phone Number Must Be 5-12 numbers!!"),
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
