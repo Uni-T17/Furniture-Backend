@@ -42,7 +42,7 @@ export const register = [
     checkUserExist(user);
 
     // OTP sending Logic
-    // Generate Otp and Call Otp Send API
+    // Generate Otp and Call Otp Send API !!D
     // Hash Otp
     // If Can't send throw error
     // make Expired time
