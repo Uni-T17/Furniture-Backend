@@ -19,7 +19,7 @@ export const maintenanceSetting = [
     const value = mode ? "true" : "false";
     const message = mode
       ? "Successfully set maintenance mode!"
-      : "Successfully turn off maintenance mode!";
+      : "Successfully turn off maintenance mode!!!";
 
     await createOrUpdateSetting("maintenance", value);
     res.status(200).json({
