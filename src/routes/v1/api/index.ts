@@ -7,7 +7,10 @@ import {
 import { testPermission } from "../../../controllers/admin/userControllers";
 import { auth } from "../../../middlewears/auth";
 import upload, { uploadOptimize } from "../../../middlewears/uploadFile";
-import { getPost, getPosts } from "../../../controllers/api/postControllers";
+import {
+  getPost,
+  getPostCursorBasedQuery,
+} from "../../../controllers/api/postControllers";
 
 const userRoutes = express.Router();
 
@@ -22,6 +25,6 @@ userRoutes.put(
 );
 
 userRoutes.get("/posts/get-post", auth, getPost);
-userRoutes.get("/posts/get-posts", getPosts);
+userRoutes.get("/posts/get-posts", getPostCursorBasedQuery);
 
 export default userRoutes;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createError, errorCode } from "../../utils/error";
-import { body, param, validationResult } from "express-validator";
+import { body, param, query, validationResult } from "express-validator";
 import {
   checkUserNotExist,
   checkUserNotExistAndRemoveFile,

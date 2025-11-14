@@ -114,3 +114,7 @@ export const deletePostById = async (postId: number) => {
     },
   });
 };
+
+export const getPostQuery = async (options: any) => {
+  return prisma.post.findMany(options);
+};
