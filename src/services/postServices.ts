@@ -1,32 +1,5 @@
-import { connect } from "http2";
-import { Prisma, PrismaClient } from "../../generated/prisma";
 import { PostType } from "../controllers/types/postType";
-import { create } from "domain";
-
-const prisma = new PrismaClient().$extends({
-  result: {
-    user: {
-      fullName: {
-        needs: { firstName: true, lastName: true },
-        compute(user) {
-          return `${user.firstName} ${user.lastName}`;
-        },
-      },
-    },
-    post: {
-      updatedAt: {
-        needs: { updatedAt: true },
-        compute(post) {
-          return post.updatedAt.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-        },
-      },
-    },
-  },
-});
+import { prisma } from "./prismaClient";
 
 export const createNewPost = async (postData: PostType) => {
   let data: any = {
