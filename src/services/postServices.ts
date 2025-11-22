@@ -3,7 +3,30 @@ import { Prisma, PrismaClient } from "../../generated/prisma";
 import { PostType } from "../controllers/types/postType";
 import { create } from "domain";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends({
+  result: {
+    user: {
+      fullName: {
+        needs: { firstName: true, lastName: true },
+        compute(user) {
+          return `${user.firstName} ${user.lastName}`;
+        },
+      },
+    },
+    post: {
+      updatedAt: {
+        needs: { updatedAt: true },
+        compute(post) {
+          return post.updatedAt.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+        },
+      },
+    },
+  },
+});
 
 export const createNewPost = async (postData: PostType) => {
   let data: any = {
@@ -131,8 +154,7 @@ export const getPostWithRelation = async (postId: number) => {
       updatedAt: true,
       author: {
         select: {
-          firstName: true,
-          lastName: true,
+          fullName: true,
         },
       },
       category: {
