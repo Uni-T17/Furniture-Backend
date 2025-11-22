@@ -118,3 +118,38 @@ export const deletePostById = async (postId: number) => {
 export const getPostQuery = async (options: any) => {
   return prisma.post.findMany(options);
 };
+
+export const getPostWithRelation = async (postId: number) => {
+  return prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      body: true,
+      image: true,
+      updatedAt: true,
+      author: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+        },
+      },
+      type: {
+        select: {
+          name: true,
+        },
+      },
+      tags: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+};

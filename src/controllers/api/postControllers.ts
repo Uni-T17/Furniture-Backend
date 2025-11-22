@@ -3,7 +3,7 @@ import { createError, errorCode } from "../../utils/error";
 import { body, param, query, validationResult } from "express-validator";
 import { getUserById } from "../../services/authServices";
 import { checkUserNotExist } from "../../utils/auth";
-import { getPostById } from "../../services/postServices";
+import { getPostById, getPostWithRelation } from "../../services/postServices";
 import { checkModelExist } from "../../utils/check";
 
 interface CustomRequest extends Request {
@@ -24,7 +24,7 @@ export const getPost = [
 
     checkUserNotExist(user);
 
-    const post = await getPostById(+postId!);
+    const post = await getPostWithRelation(+postId!);
     checkModelExist(post, "Post");
 
     res.status(200).json({ message: "OK", post });
