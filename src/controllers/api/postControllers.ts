@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { createError, errorCode } from "../../utils/error";
-import { body, query, validationResult } from "express-validator";
+import { body, param, query, validationResult } from "express-validator";
 import { getUserById } from "../../services/authServices";
 import { checkUserNotExist } from "../../utils/auth";
+import { getPostById } from "../../services/postServices";
+import { checkModelExist } from "../../utils/check";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -10,14 +12,22 @@ interface CustomRequest extends Request {
 }
 
 export const getPost = [
-  body("", ""),
+  param("id", "Invalid Post Id!").trim().notEmpty().isInt({ gt: 0 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
       return createError(errors[0]?.msg, 404, errorCode.invalid);
     }
 
-    res.status(200).json({ message: "OK" });
+    const postId = req.params.id;
+    const user = await getUserById(req.userId!);
+
+    checkUserNotExist(user);
+
+    const post = await getPostById(+postId!);
+    checkModelExist(post, "Post");
+
+    res.status(200).json({ message: "OK", post });
   },
 ];
 

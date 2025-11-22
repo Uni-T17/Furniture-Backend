@@ -29,3 +29,14 @@ export const checkPostNotExistAndRemoveFile = async (
     throw error;
   }
 };
+
+export const checkModelExist = (model: any, modelName: string) => {
+  if (!model) {
+    const error = createError(
+      `Ther is no ${modelName}!!!`,
+      404,
+      errorCode.invalid
+    );
+    throw error;
+  }
+};
