@@ -3,7 +3,11 @@ import { createError, errorCode } from "../../utils/error";
 import { body, param, query, validationResult } from "express-validator";
 import { getUserById } from "../../services/authServices";
 import { checkUserNotExist } from "../../utils/auth";
-import { getPostById, getPostWithRelation } from "../../services/postServices";
+import {
+  getPostById,
+  getPostByPage,
+  getPostWithRelation,
+} from "../../services/postServices";
 import { checkModelExist } from "../../utils/check";
 
 interface CustomRequest extends Request {
@@ -64,5 +68,26 @@ export const getPostCursorBasedQuery = [
     res.status(200).json({
       message: "Success query",
     });
+  },
+];
+
+export const getPostOffSet = [
+  query("page", "Invalid Page Id!").isInt({ gt: 0 }).optional(),
+  query("limit", "Invalid Take").isInt({ gt: 0 }).optional(),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0]?.msg, 400, errorCode.invalid));
+    }
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 3;
+
+    const user = await getUserById(req.userId!);
+    checkUserNotExist(user);
+
+    const posts = await getPostByPage(page, limit);
+
+    res.status(200).json({ message: "Success", posts });
   },
 ];

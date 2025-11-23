@@ -115,6 +115,41 @@ export const getPostQuery = async (options: any) => {
   return prisma.post.findMany(options);
 };
 
+export const getPostByPage = async (pageId: number, limit: number) => {
+  return prisma.post.findMany({
+    skip: (pageId - 1) * limit,
+    take: limit,
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      body: true,
+      image: true,
+      updatedAt: true,
+      author: {
+        select: {
+          fullName: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+        },
+      },
+      type: {
+        select: {
+          name: true,
+        },
+      },
+      tags: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+};
+
 export const getPostWithRelation = async (postId: number) => {
   return prisma.post.findUnique({
     where: { id: postId },

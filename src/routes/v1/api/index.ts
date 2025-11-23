@@ -10,6 +10,7 @@ import upload, { uploadOptimize } from "../../../middlewears/uploadFile";
 import {
   getPost,
   getPostCursorBasedQuery,
+  getPostOffSet,
 } from "../../../controllers/api/postControllers";
 
 const userRoutes = express.Router();
@@ -25,6 +26,7 @@ userRoutes.put(
 );
 
 userRoutes.get("/posts/get-posts/:id", auth, getPost);
+userRoutes.get("/posts/get-posts-page", auth, getPostOffSet);
 userRoutes.get("/posts/get-posts", getPostCursorBasedQuery);
 
 export default userRoutes;
