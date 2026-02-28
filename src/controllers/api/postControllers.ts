@@ -9,6 +9,7 @@ import {
   getPostWithRelation,
 } from "../../services/postServices";
 import { checkModelExist } from "../../utils/check";
+import { getOrSetCache } from "../../utils/cache";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -86,7 +87,14 @@ export const getPostOffSet = [
     const user = await getUserById(req.userId!);
     checkUserNotExist(user);
 
-    const posts = await getPostByPage(page, limit);
+    // const posts = await getPostByPage(page, limit);
+
+    const posts = await getOrSetCache(
+      `post:${JSON.stringify(req.query)}`,
+      async () => {
+        return await getPostByPage(page, limit);
+      },
+    );
 
     res.status(200).json({ message: "Success", posts });
   },
