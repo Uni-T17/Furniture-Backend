@@ -7,7 +7,7 @@ const redis = new Redis({
 });
 
 export const cacheWorker = new Worker(
-  //name of the worker
+  //name of the worker must be the same with queue
   "cache-invalidation",
   // what function will do for the incoming job
   async (job) => {

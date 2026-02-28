@@ -34,3 +34,5 @@ dist-ssr
 /generated/prisma
 
 /generated/prisma
+
+/upload/images

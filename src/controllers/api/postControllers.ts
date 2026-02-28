@@ -90,7 +90,7 @@ export const getPostOffSet = [
     // const posts = await getPostByPage(page, limit);
 
     const posts = await getOrSetCache(
-      `post:${JSON.stringify(req.query)}`,
+      `posts:${JSON.stringify(req.query)}`,
       async () => {
         return await getPostByPage(page, limit);
       },

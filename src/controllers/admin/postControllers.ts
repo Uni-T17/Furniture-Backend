@@ -20,6 +20,7 @@ import {
 import { PostType } from "../types/postType";
 import sanitizeHtml from "sanitize-html";
 import { removeFile } from "../../utils/removeFile";
+import { cacheQueue } from "../../jobs/queues/cacheQueue";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -70,6 +71,17 @@ export const createPost = [
       };
 
       const post = await createNewPost(postData);
+
+      await cacheQueue.add(
+        "invalidate-post-cache",
+        {
+          pattern: "posts:*",
+        },
+        {
+          jobId: `invalate-${Date.now()}`,
+          priority: 1,
+        },
+      );
 
       res
         .status(200)
@@ -131,7 +143,7 @@ export const updatePost = [
           await removeFile(image!.filename);
         }
         return next(
-          createError("You are not the author!", 400, errorCode!.invalid)
+          createError("You are not the author!", 400, errorCode!.invalid),
         );
       }
 
@@ -151,6 +163,17 @@ export const updatePost = [
 
       const updatedPost = await updatePostById(post!.id, postData);
       const updatedPostId = updatedPost.id;
+
+      await cacheQueue.add(
+        "invalidate-post-cache",
+        {
+          pattern: "posts:*",
+        },
+        {
+          jobId: `invalate-${Date.now()}`,
+          priority: 1,
+        },
+      );
 
       res.status(200).json({
         message: "Successfully Update Post",
@@ -182,7 +205,7 @@ export const deletePost = [
 
     if (user!.id !== post!.authorId) {
       return next(
-        createError("You are not the author!!", 400, errorCode!.invalid)
+        createError("You are not the author!!", 400, errorCode!.invalid),
       );
     }
 
@@ -190,6 +213,16 @@ export const deletePost = [
     const deletedPost = await deletePostById(post!.id);
     await removeFile(image);
     const deletedPostId = deletedPost.id;
+    await cacheQueue.add(
+      "invalidate-post-cache",
+      {
+        pattern: "post:*",
+      },
+      {
+        jobId: `invalate-${Date.now()}`,
+        priority: 1,
+      },
+    );
 
     res
       .status(200)
